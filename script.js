@@ -101,7 +101,59 @@ const Control = (function () {
   return { playGame };
 })();
 
+const DOMGameBoard = (function () {
+  const drawBoard = (selectorName) => {
+    const mainField = document.querySelector(selectorName);
+    const board = Gameboard.getBoard();
+    const gameBoardDOM = document.createElement("div");
+    gameBoardDOM.classList.add("game-board");
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.setAttribute("data-row", i);
+        cell.setAttribute("data-column", j);
+        if (i === 0) {
+          if (j === 0) {
+            cell.classList.add("first-row-first-cell");
+          } else if (j === board[i].length - 1) {
+            cell.classList.add("first-row-last-cell");
+          } else {
+            cell.classList.add("first-row");
+          }
+        } else if (i === board.length - 1) {
+          if (j === 0) {
+            cell.classList.add("last-row-first-cell");
+          } else if (j === board[i].length - 1) {
+            cell.classList.add("last-row-last-cell");
+          } else {
+            cell.classList.add("last-row");
+          }
+        } else {
+          if (j === 0) {
+            cell.classList.add("first-cell");
+          } else if (j === board[i].length - 1) {
+            cell.classList.add("last-cell");
+          }
+        }
+        cell.addEventListener("click", (event) => {
+          console.log("Row: ", Number(event.target.getAttribute("data-row")));
+          console.log(
+            "Column: ",
+            Number(event.target.getAttribute("data-column"))
+          );
+        });
+        gameBoardDOM.appendChild(cell);
+      }
+    }
+    mainField.appendChild(gameBoardDOM);
+  };
+
+  return { drawBoard };
+  // const reDrawBoard;
+})();
+
 const playerOne = createPlayer("Player 1", "X", false);
 const playerTwo = createPlayer("Player 2", "O", false);
-
+DOMGameBoard.drawBoard(".central-column");
 // Control.playGame();
