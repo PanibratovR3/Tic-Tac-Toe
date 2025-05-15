@@ -104,4 +104,4 @@ const Control = (function () {
 const playerOne = createPlayer("Player 1", "X", false);
 const playerTwo = createPlayer("Player 2", "O", false);
 
-Control.playGame();
+// Control.playGame();
