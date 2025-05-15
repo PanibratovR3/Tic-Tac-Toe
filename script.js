@@ -4,20 +4,28 @@ function createPlayer(name, mark, winStatus) {
 
 const Gameboard = (function () {
   const board = [
-    ["-", "-", "-"],
-    ["-", "-", "-"],
-    ["-", "-", "-"],
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""],
   ];
   const getBoard = () => board;
-  const isEmptyCell = (row, column) => board[row][column] === "-";
-  return { getBoard, isEmptyCell };
+  const getNumberOfEmptyCells = () => {
+    let oneDimBoard = [];
+    for (let i = 0; i < board.length; i++) {
+      oneDimBoard = oneDimBoard.concat(board[i]);
+    }
+    let numberOfEmptyCells = oneDimBoard.filter((item) => item === "").length;
+    return numberOfEmptyCells;
+  };
+  const isEmptyCell = (row, column) => board[row][column] === "";
+  return { getBoard, isEmptyCell, getNumberOfEmptyCells };
 })();
 
 const Control = (function () {
   let turnNumber = 1;
   let currentPlayer;
   let endGame = false;
-
+  let numberOfEmptyCells = Gameboard.getNumberOfEmptyCells();
   const playTurn = () => {
     let rowPos;
     let columnPos;
@@ -36,10 +44,9 @@ const Control = (function () {
     } while (incorrectRowPosFlag || incorrectColumnPosFlag);
 
     currentPlayer = turnNumber % 2 !== 0 ? playerOne : playerTwo;
-    console.log(`${currentPlayer.name}'s move.`);
     if (Gameboard.isEmptyCell(rowPos, columnPos)) {
       board[rowPos][columnPos] = currentPlayer.mark;
-      console.log(board);
+      numberOfEmptyCells -= 1;
       playerOne.winStatus = checkWinPositions(playerOne.mark);
       playerTwo.winStatus = checkWinPositions(playerTwo.mark);
       endGame = playerOne.winStatus || playerTwo.winStatus;
@@ -48,13 +55,16 @@ const Control = (function () {
   };
 
   const playGame = () => {
-    while (!endGame) {
+    while (numberOfEmptyCells > 0) {
       playTurn();
+      if (endGame) break;
     }
     if (playerOne.winStatus) {
       console.log(`${playerOne.name} wins.`);
     } else if (playerTwo.winStatus) {
       console.log(`${playerTwo.name} wins`);
+    } else {
+      console.log("Tie!");
     }
   };
 
@@ -67,8 +77,10 @@ const Control = (function () {
     const firstColumn = [board[0][0], board[1][0], board[2][0]];
     const secondColumn = [board[0][1], board[1][1], board[2][1]];
     const thirdColumn = [board[0][2], board[1][2], board[2][2]];
+
     const firstDiagonal = [board[0][0], board[1][1], board[2][2]];
     const secondDiagonal = [board[0][2], board[1][1], board[2][0]];
+
     const rowFlag =
       firstRow.every((item) => item === mark) ||
       secondRow.every((item) => item === mark) ||
@@ -93,6 +105,3 @@ const playerOne = createPlayer("Player 1", "X", false);
 const playerTwo = createPlayer("Player 2", "O", false);
 
 Control.playGame();
-// console.log(Control.checkWinPositions("X"));
-// Control.playTurn();
-// Control.playTurn();
