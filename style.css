@@ -14,6 +14,8 @@ body {
     padding: 15px 0;
     font-weight: 800;
     text-shadow: 1px 5px 6px;
+    background-color:lightgreen;
+    border-bottom: 1px solid black;
 }
 .main {
     display: grid;
@@ -131,6 +133,7 @@ body {
     position: fixed;
     bottom: 0;
     width: 100%;
+    border-top: 1px solid black;
 }
 
 a:visited {
