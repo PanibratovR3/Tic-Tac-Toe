@@ -8,7 +8,6 @@ const Gameboard = (function () {
     ["", "", ""],
     ["", "", ""],
   ];
-  const getBoard = () => board;
   const getNumberOfEmptyCells = () => {
     let oneDimBoard = [];
     for (let i = 0; i < board.length; i++) {
@@ -17,32 +16,23 @@ const Gameboard = (function () {
     let numberOfEmptyCells = oneDimBoard.filter((item) => item === "").length;
     return numberOfEmptyCells;
   };
-  const isEmptyCell = (row, column) => board[row][column] === "";
-  return { getBoard, isEmptyCell, getNumberOfEmptyCells };
+  const setMark = (rowPos, colPos, mark) => (board[rowPos][colPos] = mark);
+  const getMark = (rowPos, colPos) => board[rowPos][colPos];
+  const getRow = (rowPos) => board[rowPos];
+  const getSize = () => board.length;
+  return { setMark, getMark, getRow, getSize, getNumberOfEmptyCells };
 })();
 
 const Control = (function () {
   let turnNumber = 1;
   let currentPlayer;
-  // let endGame = false;
   let numberOfEmptyCells = Gameboard.getNumberOfEmptyCells();
+  let updateNumberOfEmptyCells = () => numberOfEmptyCells--;
   const updateTurnNumber = () => turnNumber++;
   const playTurn = (rowPos, columnPos) => {
-    let board = Gameboard.getBoard();
-    // do {
-    //   rowPos = Number(prompt("Enter the number of row (between 0 and 2):"));
-    //   columnPos = Number(
-    //     prompt("Enter the number of column (between 0 and 2):")
-    //   );
-    //   incorrectRowPosFlag =
-    //     isNaN(rowPos) || rowPos < 0 || rowPos >= board.length;
-    //   incorrectColumnPosFlag =
-    //     isNaN(columnPos) || columnPos < 0 || columnPos >= board.length;
-    // } while (incorrectRowPosFlag || incorrectColumnPosFlag);
-
     currentPlayer = turnNumber % 2 !== 0 ? playerOne : playerTwo;
-    board[rowPos][columnPos] = currentPlayer.mark;
-    numberOfEmptyCells -= 1;
+    Gameboard.setMark(rowPos, columnPos, currentPlayer.mark);
+    updateNumberOfEmptyCells();
     DOMGameBoard.updateBoard();
     playerOne.winStatus = checkWinPositions(playerOne.mark);
     playerTwo.winStatus = checkWinPositions(playerTwo.mark);
@@ -62,17 +52,36 @@ const Control = (function () {
   };
 
   const checkWinPositions = (mark) => {
-    const board = Gameboard.getBoard();
-    const firstRow = board[0];
-    const secondRow = board[1];
-    const thirdRow = board[2];
+    const firstRow = Gameboard.getRow(0);
+    const secondRow = Gameboard.getRow(1);
+    const thirdRow = Gameboard.getRow(2);
 
-    const firstColumn = [board[0][0], board[1][0], board[2][0]];
-    const secondColumn = [board[0][1], board[1][1], board[2][1]];
-    const thirdColumn = [board[0][2], board[1][2], board[2][2]];
+    const firstColumn = [
+      Gameboard.getMark(0, 0),
+      Gameboard.getMark(1, 0),
+      Gameboard.getMark(2, 0),
+    ];
+    const secondColumn = [
+      Gameboard.getMark(0, 1),
+      Gameboard.getMark(1, 1),
+      Gameboard.getMark(2, 1),
+    ];
+    const thirdColumn = [
+      Gameboard.getMark(0, 2),
+      Gameboard.getMark(1, 2),
+      Gameboard.getMark(2, 2),
+    ];
 
-    const firstDiagonal = [board[0][0], board[1][1], board[2][2]];
-    const secondDiagonal = [board[0][2], board[1][1], board[2][0]];
+    const firstDiagonal = [
+      Gameboard.getMark(0, 0),
+      Gameboard.getMark(1, 1),
+      Gameboard.getMark(2, 2),
+    ];
+    const secondDiagonal = [
+      Gameboard.getMark(0, 2),
+      Gameboard.getMark(1, 1),
+      Gameboard.getMark(2, 1),
+    ];
 
     const rowFlag =
       firstRow.every((item) => item === mark) ||
@@ -97,11 +106,10 @@ const Control = (function () {
 const DOMGameBoard = (function () {
   const drawBoard = (selectorName) => {
     const mainField = document.querySelector(selectorName);
-    const board = Gameboard.getBoard();
     const gameBoardDOM = document.createElement("div");
     gameBoardDOM.classList.add("game-board");
-    for (let i = 0; i < board.length; i++) {
-      for (let j = 0; j < board[i].length; j++) {
+    for (let i = 0; i < Gameboard.getSize(); i++) {
+      for (let j = 0; j < Gameboard.getRow(i).length; j++) {
         const cell = document.createElement("div");
         cell.classList.add("cell");
         cell.setAttribute("data-row", i);
@@ -109,15 +117,15 @@ const DOMGameBoard = (function () {
         if (i === 0) {
           if (j === 0) {
             cell.classList.add("first-row-first-cell");
-          } else if (j === board[i].length - 1) {
+          } else if (j === Gameboard.getRow(i).length - 1) {
             cell.classList.add("first-row-last-cell");
           } else {
             cell.classList.add("first-row");
           }
-        } else if (i === board.length - 1) {
+        } else if (i === Gameboard.getSize() - 1) {
           if (j === 0) {
             cell.classList.add("last-row-first-cell");
-          } else if (j === board[i].length - 1) {
+          } else if (j === Gameboard.getRow(i).length - 1) {
             cell.classList.add("last-row-last-cell");
           } else {
             cell.classList.add("last-row");
@@ -125,7 +133,7 @@ const DOMGameBoard = (function () {
         } else {
           if (j === 0) {
             cell.classList.add("first-cell");
-          } else if (j === board[i].length - 1) {
+          } else if (j === Gameboard.getRow(i).length - 1) {
             cell.classList.add("last-cell");
           }
         }
@@ -144,13 +152,12 @@ const DOMGameBoard = (function () {
     mainField.appendChild(gameBoardDOM);
   };
   const updateBoard = () => {
-    const board = Gameboard.getBoard();
-    for (let i = 0; i < board.length; i++) {
-      for (let j = 0; j < board.length; j++) {
+    for (let i = 0; i < Gameboard.getSize(); i++) {
+      for (let j = 0; j < Gameboard.getRow(i).length; j++) {
         const specCell = document.querySelector(
           `.cell[data-row='${i}'][data-column='${j}']`
         );
-        specCell.textContent = board[i][j];
+        specCell.textContent = Gameboard.getMark(i, j);
       }
     }
   };
