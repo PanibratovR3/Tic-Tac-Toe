@@ -20,9 +20,10 @@ const Gameboard = (function () {
   const getMark = (rowPos, colPos) => board[rowPos][colPos];
   const getRow = (rowPos) => board[rowPos];
   const getSize = () => board.length;
+  const getRowSize = (rowNumber) => board[rowNumber].length;
   const resetGameBoard = () => {
     for (let i = 0; i < getSize(); i++) {
-      for (let j = 0; j < getRow(i).length; j++) {
+      for (let j = 0; j < getRowSize(i); j++) {
         setMark(i, j, "");
       }
     }
@@ -33,6 +34,7 @@ const Gameboard = (function () {
     getMark,
     getRow,
     getSize,
+    getRowSize,
     getNumberOfEmptyCells,
     resetGameBoard,
   };
@@ -142,7 +144,7 @@ const DOMGameBoard = (function () {
     const gameBoardDOM = document.createElement("div");
     gameBoardDOM.classList.add("game-board");
     for (let i = 0; i < Gameboard.getSize(); i++) {
-      for (let j = 0; j < Gameboard.getRow(i).length; j++) {
+      for (let j = 0; j < Gameboard.getRowSize(i); j++) {
         const cell = document.createElement("div");
         cell.classList.add("cell");
         cell.setAttribute("data-row", i);
@@ -180,7 +182,7 @@ const DOMGameBoard = (function () {
   };
   const updateBoard = () => {
     for (let i = 0; i < Gameboard.getSize(); i++) {
-      for (let j = 0; j < Gameboard.getRow(i).length; j++) {
+      for (let j = 0; j < Gameboard.getRowSize(i); j++) {
         const specCell = document.querySelector(
           `.cell[data-row='${i}'][data-column='${j}']`
         );
@@ -190,7 +192,7 @@ const DOMGameBoard = (function () {
   };
   const disableBoard = () => {
     for (let i = 0; i < Gameboard.getSize(); i++) {
-      for (let j = 0; j < Gameboard.getRow(i).length; j++) {
+      for (let j = 0; j < Gameboard.getRowSize(i); j++) {
         const specCell = document.querySelector(
           `.cell[data-row='${i}'][data-column='${j}']`
         );
@@ -200,7 +202,7 @@ const DOMGameBoard = (function () {
   };
   const enableBoard = () => {
     for (let i = 0; i < Gameboard.getSize(); i++) {
-      for (let j = 0; j < Gameboard.getRow(i).length; j++) {
+      for (let j = 0; j < Gameboard.getRowSize(i); j++) {
         const specCell = document.querySelector(
           `.cell[data-row='${i}'][data-column='${j}']`
         );
