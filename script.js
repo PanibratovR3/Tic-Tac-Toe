@@ -103,7 +103,7 @@ const Control = (function () {
     const secondDiagonal = [
       Gameboard.getMark(0, 2),
       Gameboard.getMark(1, 1),
-      Gameboard.getMark(2, 1),
+      Gameboard.getMark(2, 0),
     ];
 
     const rowFlag =
