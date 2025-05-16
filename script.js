@@ -24,47 +24,40 @@ const Gameboard = (function () {
 const Control = (function () {
   let turnNumber = 1;
   let currentPlayer;
-  let endGame = false;
+  // let endGame = false;
   let numberOfEmptyCells = Gameboard.getNumberOfEmptyCells();
-  const playTurn = () => {
-    let rowPos;
-    let columnPos;
-    let incorrectRowPosFlag;
-    let incorrectColumnPosFlag;
+  const updateTurnNumber = () => turnNumber++;
+  const playTurn = (rowPos, columnPos) => {
     let board = Gameboard.getBoard();
-    do {
-      rowPos = Number(prompt("Enter the number of row (between 0 and 2):"));
-      columnPos = Number(
-        prompt("Enter the number of column (between 0 and 2):")
-      );
-      incorrectRowPosFlag =
-        isNaN(rowPos) || rowPos < 0 || rowPos >= board.length;
-      incorrectColumnPosFlag =
-        isNaN(columnPos) || columnPos < 0 || columnPos >= board.length;
-    } while (incorrectRowPosFlag || incorrectColumnPosFlag);
+    // do {
+    //   rowPos = Number(prompt("Enter the number of row (between 0 and 2):"));
+    //   columnPos = Number(
+    //     prompt("Enter the number of column (between 0 and 2):")
+    //   );
+    //   incorrectRowPosFlag =
+    //     isNaN(rowPos) || rowPos < 0 || rowPos >= board.length;
+    //   incorrectColumnPosFlag =
+    //     isNaN(columnPos) || columnPos < 0 || columnPos >= board.length;
+    // } while (incorrectRowPosFlag || incorrectColumnPosFlag);
 
     currentPlayer = turnNumber % 2 !== 0 ? playerOne : playerTwo;
-    if (Gameboard.isEmptyCell(rowPos, columnPos)) {
-      board[rowPos][columnPos] = currentPlayer.mark;
-      numberOfEmptyCells -= 1;
-      playerOne.winStatus = checkWinPositions(playerOne.mark);
-      playerTwo.winStatus = checkWinPositions(playerTwo.mark);
-      endGame = playerOne.winStatus || playerTwo.winStatus;
-      turnNumber++;
-    }
-  };
-
-  const playGame = () => {
-    while (numberOfEmptyCells > 0) {
-      playTurn();
-      if (endGame) break;
-    }
+    board[rowPos][columnPos] = currentPlayer.mark;
+    numberOfEmptyCells -= 1;
+    DOMGameBoard.updateBoard();
+    playerOne.winStatus = checkWinPositions(playerOne.mark);
+    playerTwo.winStatus = checkWinPositions(playerTwo.mark);
+    const resultField = document.querySelector(".result");
     if (playerOne.winStatus) {
-      console.log(`${playerOne.name} wins.`);
+      resultField.textContent = `${playerOne.name} wins!`;
     } else if (playerTwo.winStatus) {
-      console.log(`${playerTwo.name} wins`);
+      resultField.textContent = `${playerTwo.name} wins!`;
+    } else if (numberOfEmptyCells === 0) {
+      resultField.textContent = "Tie!";
     } else {
-      console.log("Tie!");
+      updateTurnNumber();
+      const newPlayer = turnNumber % 2 !== 0 ? playerOne : playerTwo;
+      const currentPlayerField = document.querySelector(".player-turn");
+      currentPlayerField.textContent = `${newPlayer.name}'s turn. Placing ${newPlayer.mark}`;
     }
   };
 
@@ -98,7 +91,7 @@ const Control = (function () {
     return rowFlag || columnFlag || diagonalFlag;
   };
 
-  return { playGame };
+  return { playTurn };
 })();
 
 const DOMGameBoard = (function () {
@@ -137,23 +130,34 @@ const DOMGameBoard = (function () {
           }
         }
         cell.addEventListener("click", (event) => {
-          console.log("Row: ", Number(event.target.getAttribute("data-row")));
-          console.log(
-            "Column: ",
-            Number(event.target.getAttribute("data-column"))
-          );
+          const rowNumber = Number(event.target.getAttribute("data-row"));
+          const columnNumber = Number(event.target.getAttribute("data-column"));
+          if (event.target.textContent.length === 0) {
+            Control.playTurn(rowNumber, columnNumber);
+          }
         });
         gameBoardDOM.appendChild(cell);
       }
+      const currentPlayerField = document.querySelector(".player-turn");
+      currentPlayerField.textContent = `${playerOne.name}'s turn. Placing ${playerOne.mark}`;
     }
     mainField.appendChild(gameBoardDOM);
   };
+  const updateBoard = () => {
+    const board = Gameboard.getBoard();
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board.length; j++) {
+        const specCell = document.querySelector(
+          `.cell[data-row='${i}'][data-column='${j}']`
+        );
+        specCell.textContent = board[i][j];
+      }
+    }
+  };
 
-  return { drawBoard };
-  // const reDrawBoard;
+  return { drawBoard, updateBoard };
 })();
 
 const playerOne = createPlayer("Player 1", "X", false);
 const playerTwo = createPlayer("Player 2", "O", false);
-DOMGameBoard.drawBoard(".central-column");
-// Control.playGame();
+DOMGameBoard.drawBoard(".game-container");
