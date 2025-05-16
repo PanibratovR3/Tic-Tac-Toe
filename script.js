@@ -20,15 +20,34 @@ const Gameboard = (function () {
   const getMark = (rowPos, colPos) => board[rowPos][colPos];
   const getRow = (rowPos) => board[rowPos];
   const getSize = () => board.length;
-  return { setMark, getMark, getRow, getSize, getNumberOfEmptyCells };
+  const resetGameBoard = () => {
+    for (let i = 0; i < getSize(); i++) {
+      for (let j = 0; j < getRow(i).length; j++) {
+        setMark(i, j, "");
+      }
+    }
+    console.log(board);
+  };
+  return {
+    setMark,
+    getMark,
+    getRow,
+    getSize,
+    getNumberOfEmptyCells,
+    resetGameBoard,
+  };
 })();
 
 const Control = (function () {
   let turnNumber = 1;
   let currentPlayer;
   let numberOfEmptyCells = Gameboard.getNumberOfEmptyCells();
+  const setNumberOfEmptyCells = () =>
+    (numberOfEmptyCells = Gameboard.getNumberOfEmptyCells());
   let updateNumberOfEmptyCells = () => numberOfEmptyCells--;
   const updateTurnNumber = () => turnNumber++;
+  const resetTurnNumber = () => (turnNumber = 1);
+  const resetCurrentPlayer = () => (currentPlayer = null);
   const playTurn = (rowPos, columnPos) => {
     currentPlayer = turnNumber % 2 !== 0 ? playerOne : playerTwo;
     Gameboard.setMark(rowPos, columnPos, currentPlayer.mark);
@@ -102,7 +121,12 @@ const Control = (function () {
     return rowFlag || columnFlag || diagonalFlag;
   };
 
-  return { playTurn };
+  return {
+    playTurn,
+    resetTurnNumber,
+    resetCurrentPlayer,
+    setNumberOfEmptyCells,
+  };
 })();
 
 const DOMGameBoard = (function () {
@@ -174,10 +198,39 @@ const DOMGameBoard = (function () {
       }
     }
   };
+  const enableBoard = () => {
+    for (let i = 0; i < Gameboard.getSize(); i++) {
+      for (let j = 0; j < Gameboard.getRow(i).length; j++) {
+        const specCell = document.querySelector(
+          `.cell[data-row='${i}'][data-column='${j}']`
+        );
+        specCell.addEventListener("click", handlerClick);
+      }
+    }
+  };
+  const resetBoard = () => {
+    Gameboard.resetGameBoard();
+    updateBoard();
+    Control.resetTurnNumber();
+    Control.resetCurrentPlayer();
+    Control.setNumberOfEmptyCells();
+    if (playerOne.winStatus || playerTwo.winStatus) {
+      enableBoard();
+    }
+    playerOne.winStatus = false;
+    playerTwo.winStatus = false;
+    document.querySelector(".result").textContent = "";
+    document.querySelector(
+      ".player-turn"
+    ).innerHTML = `${playerOne.name}'s turn. Placing <span class='mark-turn'>${playerOne.mark}</span>.`;
+  };
 
-  return { drawBoard, updateBoard, disableBoard };
+  return { drawBoard, updateBoard, disableBoard, resetBoard };
 })();
 
 const playerOne = createPlayer("Player 1", "X", false);
 const playerTwo = createPlayer("Player 2", "O", false);
 DOMGameBoard.drawBoard(".game-container");
+document
+  .querySelector(".restart-button")
+  .addEventListener("click", () => DOMGameBoard.resetBoard());
