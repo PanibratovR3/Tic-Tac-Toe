@@ -152,7 +152,7 @@ const DOMGameBoard = (function () {
         if (i === 0) {
           if (j === 0) {
             cell.classList.add("first-row-first-cell");
-          } else if (j === Gameboard.getRow(i).length - 1) {
+          } else if (j === Gameboard.getRowSize(i) - 1) {
             cell.classList.add("first-row-last-cell");
           } else {
             cell.classList.add("first-row");
@@ -160,7 +160,7 @@ const DOMGameBoard = (function () {
         } else if (i === Gameboard.getSize() - 1) {
           if (j === 0) {
             cell.classList.add("last-row-first-cell");
-          } else if (j === Gameboard.getRow(i).length - 1) {
+          } else if (j === Gameboard.getRowSize(i) - 1) {
             cell.classList.add("last-row-last-cell");
           } else {
             cell.classList.add("last-row");
@@ -168,7 +168,7 @@ const DOMGameBoard = (function () {
         } else {
           if (j === 0) {
             cell.classList.add("first-cell");
-          } else if (j === Gameboard.getRow(i).length - 1) {
+          } else if (j === Gameboard.getRowSize(i) - 1) {
             cell.classList.add("last-cell");
           }
         }
