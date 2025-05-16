@@ -39,15 +39,17 @@ const Control = (function () {
     const resultField = document.querySelector(".result");
     if (playerOne.winStatus) {
       resultField.textContent = `${playerOne.name} wins!`;
+      DOMGameBoard.disableBoard();
     } else if (playerTwo.winStatus) {
       resultField.textContent = `${playerTwo.name} wins!`;
+      DOMGameBoard.disableBoard();
     } else if (numberOfEmptyCells === 0) {
       resultField.textContent = "Tie!";
     } else {
       updateTurnNumber();
       const newPlayer = turnNumber % 2 !== 0 ? playerOne : playerTwo;
       const currentPlayerField = document.querySelector(".player-turn");
-      currentPlayerField.textContent = `${newPlayer.name}'s turn. Placing ${newPlayer.mark}`;
+      currentPlayerField.innerHTML = `${newPlayer.name}'s turn. Placing <span class='mark-turn'>${newPlayer.mark}</span>`;
     }
   };
 
@@ -104,6 +106,13 @@ const Control = (function () {
 })();
 
 const DOMGameBoard = (function () {
+  const handlerClick = (event) => {
+    const rowNumber = Number(event.target.getAttribute("data-row"));
+    const columnNumber = Number(event.target.getAttribute("data-column"));
+    if (event.target.textContent.length === 0) {
+      Control.playTurn(rowNumber, columnNumber);
+    }
+  };
   const drawBoard = (selectorName) => {
     const mainField = document.querySelector(selectorName);
     const gameBoardDOM = document.createElement("div");
@@ -137,17 +146,11 @@ const DOMGameBoard = (function () {
             cell.classList.add("last-cell");
           }
         }
-        cell.addEventListener("click", (event) => {
-          const rowNumber = Number(event.target.getAttribute("data-row"));
-          const columnNumber = Number(event.target.getAttribute("data-column"));
-          if (event.target.textContent.length === 0) {
-            Control.playTurn(rowNumber, columnNumber);
-          }
-        });
+        cell.addEventListener("click", handlerClick);
         gameBoardDOM.appendChild(cell);
       }
       const currentPlayerField = document.querySelector(".player-turn");
-      currentPlayerField.textContent = `${playerOne.name}'s turn. Placing ${playerOne.mark}`;
+      currentPlayerField.innerHTML = `${playerOne.name}'s turn. Placing <span class='mark-turn'>${playerOne.mark}</span>.`;
     }
     mainField.appendChild(gameBoardDOM);
   };
@@ -161,8 +164,18 @@ const DOMGameBoard = (function () {
       }
     }
   };
+  const disableBoard = () => {
+    for (let i = 0; i < Gameboard.getSize(); i++) {
+      for (let j = 0; j < Gameboard.getRow(i).length; j++) {
+        const specCell = document.querySelector(
+          `.cell[data-row='${i}'][data-column='${j}']`
+        );
+        specCell.removeEventListener("click", handlerClick);
+      }
+    }
+  };
 
-  return { drawBoard, updateBoard };
+  return { drawBoard, updateBoard, disableBoard };
 })();
 
 const playerOne = createPlayer("Player 1", "X", false);
