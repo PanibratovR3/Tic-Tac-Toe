@@ -9,3 +9,5 @@ For implementation of this game next tools were used:
 - Javascript.
 
 In this project I applied OOP patterns **_Factory_** (players) and **_Module_** (gaming board for program and UI) for full implementation of game.
+
+The Icon of game was taken from this [site](https://www.svgrepo.com/svg/281462/tic-tac-toe).
